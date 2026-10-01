@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TripSplit - Expense Splitter</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+<header>
+  <div>
+    <h1>TripSplit</h1>
+    <p>Simple team outing expense splitter</p>
+  </div>
+  <div class="header-actions">
+    <button class="secondary" onclick="createDemo()">Load Demo</button>
+    <button onclick="openTripModal()">+ New Trip</button>
+  </div>
+</header>
+
+<main>
+  <section class="topbar">
+    <label>
+      Current Trip
+      <select id="tripSelect" onchange="loadTrip()"></select>
+    </label>
+    <div id="tripName" class="trip-name"></div>
+  </section>
+
+  <div id="emptyState" class="empty card">
+    Create a trip or load the demo to start.
+  </div>
+
+  <div id="appContent" class="hidden">
+    <section class="grid two">
+      <div class="card">
+        <div class="section-title">
+          <h2>Members</h2>
+          <button onclick="openMemberModal()">+ Member</button>
+        </div>
+        <div id="members" class="member-list"></div>
+      </div>
+
+      <div class="card">
+        <div class="section-title">
+          <h2>Add Expense</h2>
+        </div>
+        <form id="expenseForm">
+          <input id="expenseDescription" placeholder="Description e.g. Dinner" required>
+          <input id="expenseAmount" type="number" min="0.01" step="0.01" placeholder="Amount ₹" required>
+          <select id="expensePaidBy" required></select>
+
+          <label class="small-label">Category</label>
+          <select id="expenseCategory">
+            <option>Food</option>
+            <option>Travel</option>
+            <option>Stay</option>
+            <option>Other</option>
+          </select>
+
+          <label class="small-label">Split between</label>
+          <div id="splitMembers" class="checkbox-list"></div>
+
+          <button type="submit" class="full">Add Expense</button>
+        </form>
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="section-title">
+        <h2>Balances</h2>
+        <span class="muted">Paid − Share</span>
+      </div>
+      <div id="balances" class="balance-grid"></div>
+    </section>
+
+    <section class="card">
+      <div class="section-title">
+        <h2>Settlement Suggestions</h2>
+        <span class="muted">Minimum practical transfers</span>
+      </div>
+      <div id="settlements"></div>
+    </section>
+
+    <section class="card">
+      <div class="section-title">
+        <h2>Expenses</h2>
+        <span id="totalExpenses" class="muted"></span>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Description</th>
+              <th>Amount</th>
+              <th>Paid by</th>
+              <th>Split between</th>
+              <th>Category</th>
+            </tr>
+          </thead>
+          <tbody id="expenses"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="section-title">
+        <h2>Completed Settlements</h2>
+      </div>
+      <div id="completedSettlements" class="completed-list"></div>
+    </section>
+  </div>
+</main>
+
+<div id="modal" class="modal hidden">
+  <div class="modal-box">
+    <button class="close" onclick="closeModal()">×</button>
+    <h2 id="modalTitle">New Trip</h2>
+    <form id="modalForm"></form>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script src="/static/app.js"></script>
+</body>
+</html>
