@@ -422,15 +422,24 @@ def complete_settlement(trip_id: int, data: SettlementCreate):
         return {"message": "Settlement marked as done"}
 
 
+
 @app.post("/api/demo")
 def seed_demo():
-    """Creates one demo trip with 5 members and 8 expenses."""
+    """Creates one demo trip with 6 members and 8 expenses."""
     with closing(get_db()) as db:
-        cur = db.execute("INSERT INTO trips(name) VALUES(?)", ("Goa Trip Demo",))
+        cur = db.execute(
+            "INSERT INTO trips(name) VALUES(?)",
+            ("Puri Trip Demo",)
+        )
         trip_id = cur.lastrowid
 
-        names = ["Rahul", "Priya", "Amit", "Neha", "Rohit"]
+        names = [
+            "Priyanshu", "Sonu", "Bharath",
+            "Bhumika", "Pooja", "Choti"
+        ]
+
         member_ids = {}
+
         for name in names:
             c = db.execute(
                 "INSERT INTO members(trip_id, name) VALUES(?, ?)",
@@ -439,19 +448,36 @@ def seed_demo():
             member_ids[name] = c.lastrowid
 
         expenses = [
-            ("Hotel", 5000, "Rahul", ["Rahul", "Priya", "Amit", "Neha", "Rohit"], "Stay"),
-            ("Dinner", 1500, "Rahul", ["Rahul", "Priya", "Amit"], "Food"),
-            ("Cab", 1200, "Amit", ["Rahul", "Amit", "Neha"], "Travel"),
-            ("Breakfast", 600, "Priya", ["Priya", "Amit", "Neha", "Rohit"], "Food"),
-            ("Tickets", 2500, "Neha", ["Rahul", "Priya", "Neha", "Rohit"], "Travel"),
-            ("Lunch", 1800, "Rohit", ["Rahul", "Priya", "Amit", "Neha", "Rohit"], "Food"),
-            ("Taxi", 900, "Priya", ["Priya", "Neha", "Rohit"], "Travel"),
-            ("Snacks", 500, "Amit", ["Rahul", "Amit", "Rohit"], "Food"),
+            ("Hotel", 5000, "Priyanshu",
+             ["Priyanshu", "Sonu", "Bharath", "Bhumika", "Pooja", "Choti"], "Stay"),
+
+            ("Dinner", 1500, "Sonu",
+             ["Priyanshu", "Sonu", "Bharath"], "Food"),
+
+            ("Cab", 1200, "Bharath",
+             ["Priyanshu", "Bharath", "Bhumika"], "Travel"),
+
+            ("Breakfast", 600, "Bhumika",
+             ["Sonu", "Bharath", "Bhumika", "Pooja"], "Food"),
+
+            ("Tickets", 2500, "Pooja",
+             ["Priyanshu", "Sonu", "Pooja", "Choti"], "Travel"),
+
+            ("Lunch", 1800, "Choti",
+             ["Priyanshu", "Sonu", "Bharath", "Bhumika", "Pooja", "Choti"], "Food"),
+
+            ("Taxi", 900, "Priyanshu",
+             ["Bhumika", "Pooja", "Choti"], "Travel"),
+
+            ("Snacks", 500, "Bharath",
+             ["Priyanshu", "Bharath", "Choti"], "Food"),
         ]
 
         for desc, amount, paid_name, split_names, category in expenses:
             c = db.execute("""
-                INSERT INTO expenses(trip_id, description, amount, paid_by, category)
+                INSERT INTO expenses(
+                    trip_id, description, amount, paid_by, category
+                )
                 VALUES(?, ?, ?, ?, ?)
             """, (
                 trip_id,
@@ -460,19 +486,32 @@ def seed_demo():
                 member_ids[paid_name],
                 category
             ))
+
             expense_id = c.lastrowid
+
             base = round(amount / len(split_names), 2)
             shares = [base] * len(split_names)
             shares[-1] = round(amount - sum(shares[:-1]), 2)
 
             for i, name in enumerate(split_names):
                 db.execute("""
-                    INSERT INTO expense_splits(expense_id, member_id, share)
+                    INSERT INTO expense_splits(
+                        expense_id, member_id, share
+                    )
                     VALUES(?, ?, ?)
-                """, (expense_id, member_ids[name], shares[i]))
+                """, (
+                    expense_id,
+                    member_ids[name],
+                    shares[i]
+                ))
 
         db.commit()
-        return {"trip_id": trip_id, "message": "Demo trip created"}
+
+        return {
+            "trip_id": trip_id,
+            "message": "Demo trip created"
+        }
+
 
 
 if __name__ == "__main__":
